@@ -1,67 +1,130 @@
 import styled from 'styled-components';
 import GlobalStyle from './GlobalStyle.js';
-import forcaOne from './assets/forca0.png';
-import forcaTwo from './assets/forca1.png';
-import forcaThree from './assets/forca2.png';
-import forcaFour from './assets/forca3.png';
-import forcaFive from './assets/forca4.png';
-import forcaSix from './assets/forca5.png';
-import forcaSeven from './assets/forca6.png';
+import forca0 from './assets/forca0.png';
+import forca1 from './assets/forca1.png';
+import forca2 from './assets/forca2.png';
+import forca3 from './assets/forca3.png';
+import forca4 from './assets/forca4.png';
+import forca5 from './assets/forca5.png';
+import forca6 from './assets/forca6.png';
 import alphabet from './alphabet.js';
 import palavras from './palavras.js';
-
-function Jogo() {
-	return (
-		<JogoDiv>
-			<img src={forcaOne} alt="forca inicial" data-identifier="game-image" />
-			<Palavra>
-				<EscolherPalavra data-identifier="choose-word" onClick={() => alert('Escolher Palavra')}>
-					Escolher Palavra
-				</EscolherPalavra>
-				<AdvinhePalavra className="advinhePalavra" data-identifier="word">
-					_ _ _ _ _ _
-				</AdvinhePalavra>
-			</Palavra>
-		</JogoDiv>
-	);
-}
-
-function Letras() {
-	function selecionarLetra(index, letra) {
-		alert(`${index} - ${letra}`);
-	}
-
-	return (
-		<LetrasDiv>
-			{alphabet.map((l, index) => (
-				<Letra data-identifier="letter" onClick={() => selecionarLetra(index, l)}>
-					{l}
-				</Letra>
-			))}
-		</LetrasDiv>
-	);
-}
-
-function Chute() {
-	return (
-		<ChuteDiv>
-			<p>Já sei a palavra!</p>
-			<ChuteInput type={'text'} data-identifier="type-guess"></ChuteInput>
-			<ChutarButton data-identifier="guess-button" onClick={() => alert('Chutar')}>
-				Chutar
-			</ChutarButton>
-		</ChuteDiv>
-	);
-}
+import { useState } from 'react';
 
 export default function App() {
+	const imagens = [forca0, forca1, forca2, forca3, forca4, forca5, forca6];
+	const [palavra, setPalavra] = useState('');
+	const [texto, setTexto] = useState('');
+	const [gameStart, setGameStart] = useState(false);
+	const [letrasSelecionadas, setLetrasSelecionadas] = useState([]);
+	const [erros, setErros] = useState(0);
+	const [imagem, setImagem] = useState(imagens[erros]);
+	const [chute, setChute] = useState('');
+
+	function selecionarLetra(index, letra) {
+		if (!letrasSelecionadas.includes(letra)) {
+			setLetrasSelecionadas([...letrasSelecionadas, letra]);
+		}
+		if (!palavra.includes(letra)) {
+			setErros(erros + 1);
+		}
+		setarImagem();
+	}
+
+	function sortearIdPalavra() {
+		return Math.round(Math.random() * palavras.length);
+	}
+
+	function palavraAleatoria() {
+		const novaPalavra = palavras[sortearIdPalavra()].toUpperCase();
+		const palavraArray = novaPalavra.split('');
+		console.log(palavraArray);
+		let palavraEdit = '';
+
+		palavraArray.forEach(() => (palavraEdit += `_ `));
+
+		setPalavra(novaPalavra);
+		setTexto(palavraEdit);
+		setGameStart(true);
+	}
+
+	function setarImagem() {
+		setImagem(imagens[erros]);
+	}
+
+	function conferirChute(valor) {
+		console.log(valor);
+		if (chute.toUpperCase() === palavra) {
+			alert('parabens');
+		} else {
+			alert('errou');
+		}
+		setChute('');
+	}
+
+	console.log(texto);
+	console.log(gameStart);
+	console.log(palavra);
+	console.log(letrasSelecionadas);
+	console.log(erros);
+	console.log(imagem);
+
 	return (
-		<div>
+		<>
 			<GlobalStyle />
-			<Jogo />
-			<Letras />
-			<Chute />
-		</div>
+
+			<JogoDiv>
+				<img src={imagem} alt="imagem forca" data-identifier="game-image" />
+				<Palavra>
+					<SortearPalavra
+						data-identifier="choose-word"
+						onClick={palavraAleatoria}
+						disabled={gameStart === true ? 'disabled' : ''}>
+						Sortear Palavra
+					</SortearPalavra>
+					<AdvinhePalavra className="advinhePalavra" data-identifier="word">
+						{texto}
+					</AdvinhePalavra>
+				</Palavra>
+			</JogoDiv>
+
+			<LetrasDiv>
+				{alphabet.map((l, index) =>
+					!letrasSelecionadas.includes(l) ? (
+						<Letra
+							key={index}
+							onClick={() => selecionarLetra(index, l)}
+							disabled={gameStart === true ? '' : 'disabled'}
+							data-identifier="letter">
+							{l}
+						</Letra>
+					) : (
+						<LetraSelecionada
+							key={index}
+							onClick={() => selecionarLetra(index, l)}
+							disabled={gameStart === true ? '' : 'disabled'}
+							data-identifier="letter">
+							{l}
+						</LetraSelecionada>
+					)
+				)}
+			</LetrasDiv>
+
+			<ChuteDiv>
+				<p>Já sei a palavra!</p>
+				<ChuteInput
+					type={'text'}
+					data-identifier="type-guess"
+					disabled={gameStart === true ? '' : 'disabled'}
+					onChange={(e) => setChute(e.target.value)}></ChuteInput>
+				<ChutarButton
+					onClick={() => conferirChute('teste')}
+					disabled={gameStart === true ? '' : 'disabled'}
+					data-identifier="guess-button">
+					Chutar
+				</ChutarButton>
+			</ChuteDiv>
+		</>
 	);
 }
 
@@ -82,7 +145,7 @@ const Palavra = styled.div`
 	justify-content: space-between;
 `;
 
-const EscolherPalavra = styled.button`
+const SortearPalavra = styled.button`
 	border: none;
 	outline: none;
 	border-radius: 4px;
@@ -95,8 +158,9 @@ const EscolherPalavra = styled.button`
 `;
 
 const AdvinhePalavra = styled.p`
-	font-size: 18px;
-	font-weight: 500;
+	font-size: 24px;
+	font-weight: 600;
+	padding-bottom: 20px;
 `;
 
 const LetrasDiv = styled.div`
@@ -117,6 +181,12 @@ const Letra = styled.button`
 	width: 40px;
 	height: 40px;
 	margin: 0 10px 10px 0;
+`;
+
+const LetraSelecionada = styled(Letra)`
+	background-color: #9faab5;
+	color: #87848a;
+	border: 1px solid #87848a;
 `;
 
 const ChuteDiv = styled.div`
