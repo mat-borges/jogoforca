@@ -13,61 +13,129 @@ import { useState } from 'react';
 
 export default function App() {
 	const imagens = [forca0, forca1, forca2, forca3, forca4, forca5, forca6];
+
+	// States
 	const [palavra, setPalavra] = useState('');
+	const [palavraNormalizada, setPalavraNormalizada] = useState('');
+	const [palavraArray, setPalavraArray] = useState([]);
+	const [palavraNormalizadaArray, setPalavraNormalizadaArray] = useState([]);
 	const [texto, setTexto] = useState('');
 	const [gameStart, setGameStart] = useState(false);
 	const [letrasSelecionadas, setLetrasSelecionadas] = useState([]);
 	const [erros, setErros] = useState(0);
 	const [imagem, setImagem] = useState(imagens[erros]);
 	const [chute, setChute] = useState('');
+	const [status, setStatus] = useState('jogando');
 
-	function selecionarLetra(index, letra) {
-		if (!letrasSelecionadas.includes(letra)) {
-			setLetrasSelecionadas([...letrasSelecionadas, letra]);
-		}
-		if (!palavra.includes(letra)) {
-			setErros(erros + 1);
-		}
-		setarImagem();
+	// Tirar acentos e cedilhas
+	function normalizarPalavra(str) {
+		str = str.replace(/[ÀÁÂÃÄÅ]/, 'A');
+		str = str.replace(/[àáâãäå]/, 'a');
+		str = str.replace(/[ÈÉÊË]/, 'E');
+		str = str.replace(/[èéêë]/, 'e');
+		str = str.replace(/[ÌÍÏ]/, 'I');
+		str = str.replace(/[ìíï]/, 'i');
+		str = str.replace(/[ÒÓÔÕÖ]/, 'O');
+		str = str.replace(/[òóôõö]/, 'o');
+		str = str.replace(/[ÙÚÜ]/, 'U');
+		str = str.replace(/[ùúü]/, 'u');
+		str = str.replace(/[Ç]/, 'C');
+		str = str.replace(/[ç]/, 'c');
+
+		return str.replace(/[^a-z0-9]/gi, '');
 	}
 
+	// Random ID
 	function sortearIdPalavra() {
 		return Math.round(Math.random() * palavras.length);
 	}
 
-	function palavraAleatoria() {
+	// Sortear uma palavra e começar o jogo
+	function sortearPalavra() {
 		const novaPalavra = palavras[sortearIdPalavra()].toUpperCase();
-		const palavraArray = novaPalavra.split('');
-		console.log(palavraArray);
-		let palavraEdit = '';
-
-		palavraArray.forEach(() => (palavraEdit += `_ `));
+		const novaPalavraNormalizada = normalizarPalavra(novaPalavra);
+		const novaPalavraArray = novaPalavra.split('');
+		const novaPalavraNormalizadaArray = novaPalavraNormalizada.split('');
+		let palavraUnderlines = novaPalavraArray.map((e) => '_');
 
 		setPalavra(novaPalavra);
-		setTexto(palavraEdit);
+		setPalavraNormalizada(novaPalavraNormalizada);
+		setPalavraArray(novaPalavraArray);
+		setPalavraNormalizadaArray(novaPalavraNormalizadaArray);
+		setTexto(palavraUnderlines.join(' '));
 		setGameStart(true);
+		setLetrasSelecionadas([]);
+		setStatus('jogando');
+		setErros(0);
+		setarImagem(0);
 	}
 
-	function setarImagem() {
-		setImagem(imagens[erros]);
+	// Mostrar imagem de acordo com o número de erros
+	function setarImagem(nErro) {
+		setImagem(imagens[nErro]);
 	}
 
+	// Ações ao selecionar uma letra
+	function selecionarLetra(index, letra) {
+		let textoEdit = texto.split(' ');
+		let novoErro = erros;
+
+		if (!letrasSelecionadas.includes(letra)) {
+			setLetrasSelecionadas([...letrasSelecionadas, letra]);
+		}
+
+		if (palavraNormalizada.includes(letra)) {
+			palavraNormalizadaArray.forEach((e, i) => {
+				if (palavraNormalizadaArray[i] === letra) {
+					textoEdit[i] = palavraArray[i];
+				} else {
+				}
+			});
+			setTexto(textoEdit.join(' '));
+			if (textoEdit.join('') === palavra) {
+				setStatus('ganhou');
+				setGameStart(false);
+			}
+		} else if (!palavraNormalizada.includes(letra) && novoErro < 5) {
+			setErros(erros + 1);
+			novoErro++;
+			setarImagem(novoErro);
+		} else if (novoErro >= 5) {
+			setarImagem(6);
+			setTexto(palavra);
+			setStatus('perdeu');
+			setGameStart(false);
+		}
+	}
+
+	// Conferir se o chute inserido === palavra
 	function conferirChute(valor) {
-		console.log(valor);
-		if (chute.toUpperCase() === palavra) {
-			alert('parabens');
+		if (valor.toUpperCase() === palavra) {
+			setTexto(palavra);
+			setStatus('ganhou');
+			setGameStart(false);
 		} else {
-			alert('errou');
+			setTexto(palavra);
+			setImagem(forca6);
+			setGameStart(false);
+			setStatus('perdeu');
 		}
 		setChute('');
 	}
 
-	console.log(texto);
-	console.log(gameStart);
+	// Conferir resultado
+
+	function conferirResultado() {
+		if (status === 'jogando') {
+			return '#000000';
+		} else if (status === 'ganhou') {
+			return 'green';
+		} else if (status === 'perdeu') {
+			return 'red';
+		}
+	}
+
 	console.log(palavra);
-	console.log(letrasSelecionadas);
-	console.log(erros);
-	console.log(imagem);
 
 	return (
 		<>
@@ -78,36 +146,28 @@ export default function App() {
 				<Palavra>
 					<SortearPalavra
 						data-identifier="choose-word"
-						onClick={palavraAleatoria}
-						disabled={gameStart === true ? 'disabled' : ''}>
-						Sortear Palavra
+						onClick={sortearPalavra}
+						backgroundColor={`#27ae60`}>
+						{gameStart === false ? 'Sortear Palavra' : 'Sortear Nova Palavra'}
 					</SortearPalavra>
-					<AdvinhePalavra className="advinhePalavra" data-identifier="word">
+					<AdvinhePalavra cor={conferirResultado} data-identifier="word">
 						{texto}
 					</AdvinhePalavra>
 				</Palavra>
 			</JogoDiv>
 
 			<LetrasDiv>
-				{alphabet.map((l, index) =>
-					!letrasSelecionadas.includes(l) ? (
-						<Letra
-							key={index}
-							onClick={() => selecionarLetra(index, l)}
-							disabled={gameStart === true ? '' : 'disabled'}
-							data-identifier="letter">
-							{l}
-						</Letra>
-					) : (
-						<LetraSelecionada
-							key={index}
-							onClick={() => selecionarLetra(index, l)}
-							disabled={gameStart === true ? '' : 'disabled'}
-							data-identifier="letter">
-							{l}
-						</LetraSelecionada>
-					)
-				)}
+				{alphabet.map((l, index) => (
+					<Letra
+						key={index}
+						onClick={() => selecionarLetra(index, l)}
+						disabled={gameStart === true ? '' : 'disabled'}
+						data-identifier="letter"
+						backgroundColor={!letrasSelecionadas.includes(l) ? '#e1ecf4' : '#9faab5'}
+						letterBorderColor={!letrasSelecionadas.includes(l) ? '#2c6a96' : '#87848a'}>
+						{l}
+					</Letra>
+				))}
 			</LetrasDiv>
 
 			<ChuteDiv>
@@ -116,9 +176,10 @@ export default function App() {
 					type={'text'}
 					data-identifier="type-guess"
 					disabled={gameStart === true ? '' : 'disabled'}
-					onChange={(e) => setChute(e.target.value)}></ChuteInput>
+					onChange={(e) => setChute(e.target.value)}
+					value={chute}></ChuteInput>
 				<ChutarButton
-					onClick={() => conferirChute('teste')}
+					onClick={() => conferirChute(chute)}
 					disabled={gameStart === true ? '' : 'disabled'}
 					data-identifier="guess-button">
 					Chutar
@@ -146,10 +207,10 @@ const Palavra = styled.div`
 `;
 
 const SortearPalavra = styled.button`
+	background-color: ${(props) => props.backgroundColor};
 	border: none;
 	outline: none;
 	border-radius: 4px;
-	background-color: #27ae60;
 	color: #ffffff;
 	font-size: 16px;
 	font-weight: 600;
@@ -158,6 +219,7 @@ const SortearPalavra = styled.button`
 `;
 
 const AdvinhePalavra = styled.p`
+	color: ${(props) => props.cor};
 	font-size: 24px;
 	font-weight: 600;
 	padding-bottom: 20px;
@@ -174,19 +236,13 @@ const LetrasDiv = styled.div`
 `;
 
 const Letra = styled.button`
-	background-color: #e1ecf4;
+	background-color: ${(props) => props.backgroundColor};
+	color: ${(props) => props.letterBorderColor};
+	border: 1px solid ${(props) => props.letterBorderColor};
 	border-radius: 5px;
-	color: #2c6a96;
-	border: 1px solid #2c6a96;
 	width: 40px;
 	height: 40px;
 	margin: 0 10px 10px 0;
-`;
-
-const LetraSelecionada = styled(Letra)`
-	background-color: #9faab5;
-	color: #87848a;
-	border: 1px solid #87848a;
 `;
 
 const ChuteDiv = styled.div`
