@@ -136,8 +136,6 @@ export default function App() {
 		}
 	}
 
-	console.log(palavra);
-
 	return (
 		<>
 			<GlobalStyle />
