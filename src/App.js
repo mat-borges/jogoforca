@@ -18,8 +18,6 @@ export default function App() {
 	// States
 	const [palavra, setPalavra] = useState('');
 	const [palavraNormalizada, setPalavraNormalizada] = useState('');
-	const [palavraArray, setPalavraArray] = useState([]);
-	const [palavraNormalizadaArray, setPalavraNormalizadaArray] = useState([]);
 	const [texto, setTexto] = useState('');
 	const [gameStart, setGameStart] = useState(false);
 	const [letrasSelecionadas, setLetrasSelecionadas] = useState([]);
@@ -30,39 +28,18 @@ export default function App() {
 
 	// Tirar acentos e cedilhas
 	function normalizarPalavra(str) {
-		str = str.replace(/[ÀÁÂÃÄÅ]/, 'A');
-		str = str.replace(/[àáâãäå]/, 'a');
-		str = str.replace(/[ÈÉÊË]/, 'E');
-		str = str.replace(/[èéêë]/, 'e');
-		str = str.replace(/[ÌÍÏ]/, 'I');
-		str = str.replace(/[ìíï]/, 'i');
-		str = str.replace(/[ÒÓÔÕÖ]/, 'O');
-		str = str.replace(/[òóôõö]/, 'o');
-		str = str.replace(/[ÙÚÜ]/, 'U');
-		str = str.replace(/[ùúü]/, 'u');
-		str = str.replace(/[Ç]/, 'C');
-		str = str.replace(/[ç]/, 'c');
-
-		return str.replace(/[^a-z0-9]/gi, '');
-	}
-
-	// Random ID
-	function sortearIdPalavra() {
-		return Math.round(Math.random() * palavras.length);
+		return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 	}
 
 	// Sortear uma palavra e começar o jogo
 	function sortearPalavra() {
-		const novaPalavra = palavras[sortearIdPalavra()].toUpperCase();
+		const i = Math.floor(Math.random() * palavras.length);
+		const novaPalavra = palavras[i].toUpperCase();
 		const novaPalavraNormalizada = normalizarPalavra(novaPalavra);
-		const novaPalavraArray = novaPalavra.split('');
-		const novaPalavraNormalizadaArray = novaPalavraNormalizada.split('');
-		const palavraUnderlines = novaPalavraArray.map(() => '_');
+		const palavraUnderlines = novaPalavra.split('').map(() => '_');
 
 		setPalavra(novaPalavra);
 		setPalavraNormalizada(novaPalavraNormalizada);
-		setPalavraArray(novaPalavraArray);
-		setPalavraNormalizadaArray(novaPalavraNormalizadaArray);
 		setTexto(palavraUnderlines.join(' '));
 		setGameStart(true);
 		setLetrasSelecionadas([]);
@@ -86,9 +63,9 @@ export default function App() {
 		}
 
 		if (palavraNormalizada.includes(letra)) {
-			palavraNormalizadaArray.forEach((e, i) => {
-				if (palavraNormalizadaArray[i] === letra) {
-					textoEdit[i] = palavraArray[i];
+			palavraNormalizada.split('').forEach((e, i) => {
+				if (palavraNormalizada.split('')[i] === letra) {
+					textoEdit[i] = palavra[i];
 				}
 			});
 			setTexto(textoEdit.join(' '));

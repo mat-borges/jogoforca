@@ -61,6 +61,9 @@ const SortearPalavra = styled.button`
 	font-weight: 600;
 	height: 40px;
 	width: 200px;
+	&:hover {
+		filter: brightness(0.8);
+	}
 `;
 
 const AdvinhePalavra = styled.p`

@@ -11,7 +11,9 @@ export default function Letras(props) {
 					disabled={props.gameStart === true ? '' : 'disabled'}
 					data-identifier="letter"
 					backgroundColor={!props.letrasSelecionadas.includes(l) ? '#e1ecf4' : '#9faab5'}
-					letterBorderColor={!props.letrasSelecionadas.includes(l) ? '#2c6a96' : '#87848a'}>
+					letterBorderColor={!props.letrasSelecionadas.includes(l) ? '#2c6a96' : '#87848a'}
+					opacity={props.gameStart === true ? '1' : '0.5'}
+					filter={props.gameStart === true ? '0.8' : '1'}>
 					{l}
 				</Letra>
 			))}
@@ -37,4 +39,8 @@ const Letra = styled.button`
 	width: 40px;
 	height: 40px;
 	margin: 0 10px 10px 0;
+	opacity: ${(props) => props.opacity};
+	&:hover {
+		filter: brightness(${(props) => props.filter});
+	}
 `;
