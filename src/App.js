@@ -146,6 +146,7 @@ export default function App() {
 				sortearPalavra={() => sortearPalavra()}
 				conferirResultado={() => conferirResultado()}
 				texto={texto}
+				status={status}
 			/>
 			<Letras
 				gameStart={gameStart}

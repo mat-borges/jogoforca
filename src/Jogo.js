@@ -11,6 +11,15 @@ export default function Jogo(props) {
 					backgroundColor={`#27ae60`}>
 					{props.gameStart === false ? 'Sortear Palavra' : 'Sortear Nova Palavra'}
 				</SortearPalavra>
+				<ImagemResultado
+					src={
+						props.status === 'ganhou'
+							? 'https://i.pinimg.com/originals/3c/1b/79/3c1b796e422435beccdf379027a468d7.gif'
+							: 'https://media1.giphy.com/media/1ymqeIFIHv5A1Dg2ni/giphy.gif'
+					}
+					display={props.status === 'jogando' ? 'none' : 'initial'}
+					alt="gif comemoração"
+				/>
 				<AdvinhePalavra cor={props.conferirResultado} data-identifier="word">
 					{props.texto}
 				</AdvinhePalavra>
@@ -30,10 +39,16 @@ const JogoDiv = styled.div`
 
 const Palavra = styled.div`
 	height: 100%;
+	width: 250px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: space-between;
+`;
+
+const ImagemResultado = styled.img`
+	display: ${(props) => props.display};
+	max-width: 350px;
 `;
 
 const SortearPalavra = styled.button`
