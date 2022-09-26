@@ -57,7 +57,7 @@ export default function App() {
 		const novaPalavraNormalizada = normalizarPalavra(novaPalavra);
 		const novaPalavraArray = novaPalavra.split('');
 		const novaPalavraNormalizadaArray = novaPalavraNormalizada.split('');
-		let palavraUnderlines = novaPalavraArray.map((e) => '_');
+		const palavraUnderlines = novaPalavraArray.map(() => '_');
 
 		setPalavra(novaPalavra);
 		setPalavraNormalizada(novaPalavraNormalizada);
@@ -78,7 +78,7 @@ export default function App() {
 
 	// Ações ao selecionar uma letra
 	function selecionarLetra(index, letra) {
-		let textoEdit = texto.split(' ');
+		const textoEdit = texto.split(' ');
 		let novoErro = erros;
 
 		if (!letrasSelecionadas.includes(letra)) {
@@ -89,7 +89,6 @@ export default function App() {
 			palavraNormalizadaArray.forEach((e, i) => {
 				if (palavraNormalizadaArray[i] === letra) {
 					textoEdit[i] = palavraArray[i];
-				} else {
 				}
 			});
 			setTexto(textoEdit.join(' '));
