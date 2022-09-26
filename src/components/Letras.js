@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import alphabet from './alphabet';
+import alphabet from '../arrays/alphabet';
 
 export default function Letras(props) {
 	return (
